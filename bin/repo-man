@@ -76,7 +76,7 @@ module RepoMan
 end
 
 if ARGV.length != 1
-  puts "Usage: svn-dav-gen path"
+  puts "Usage: repo-man path"
   exit
 end
 
