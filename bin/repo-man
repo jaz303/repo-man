@@ -1,0 +1,94 @@
+#!/usr/bin/env ruby
+
+module RepoMan
+  
+  class ApacheConfigGenerator
+    
+    def initialize(path)
+      @path = path
+    end
+    
+    def roots
+      RootDetector.new(@path).roots
+    end
+    
+    def to_httpd_conf
+      out = ""
+      roots.each do |r|
+        
+        out << "<Location #{normalize_location(r)}>\n"
+        out << "  DAV svn\n"
+        out << "  SVNParentPath #{r}\n"
+        
+        access_file = File.join(r, 'access')
+        if File.exists?(access_file)
+          out << "  AuthzSVNAccessFile #{access_file}\n"
+        end
+          
+        out << "  Require valid-user\n"
+        out << "  Allow from all\n"
+        out << "  Satisfy all\n"
+        out << "</Location>\n\n"
+        
+      end
+      out
+    end
+    
+    private
+    
+      def normalize_location(r)
+        r.gsub(/^#{Regexp.quote(@path)}/, '') + '/'
+      end
+    
+  end
+
+  # Locates all SVN roots under a given path
+  # root = directory containing one or more repos
+  class RootDetector
+    def initialize(path)
+      @path = path
+    end
+    
+    def roots
+      unless @roots
+        @roots = []
+        find_roots(@path)
+      end
+      @roots
+    end
+    
+    private
+      
+      def find_roots(path)
+        try = Dir["#{path}/*"].reject { |f| !File.directory?(f) }
+        if try.any? { |f| is_repo?(f) }
+          @roots << path
+        else
+          try.each { |d| find_roots(d) }
+        end
+      end
+      
+      def is_repo?(path)
+        %w(conf dav db hooks locks).all? { |d| File.directory?(File.join(path, d)) }
+      end
+    
+  end
+end
+
+if $0 == __FILE__
+
+  if ARGV.length != 1
+    puts "Usage: svn-dav-gen path"
+    exit
+  end
+  
+  path = File.expand_path(ARGV[0])
+  
+  if !File.directory?(path)
+    puts "Error: #{path} is not a directory"
+    exit 1
+  end
+  
+  puts RepoMan::ApacheConfigGenerator.new(path).to_httpd_conf
+
+end
