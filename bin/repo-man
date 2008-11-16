@@ -75,20 +75,16 @@ module RepoMan
   end
 end
 
-if $0 == __FILE__
-
-  if ARGV.length != 1
-    puts "Usage: svn-dav-gen path"
-    exit
-  end
-  
-  path = File.expand_path(ARGV[0])
-  
-  if !File.directory?(path)
-    puts "Error: #{path} is not a directory"
-    exit 1
-  end
-  
-  puts RepoMan::ApacheConfigGenerator.new(path).to_httpd_conf
-
+if ARGV.length != 1
+  puts "Usage: svn-dav-gen path"
+  exit
 end
+
+path = File.expand_path(ARGV[0])
+
+if !File.directory?(path)
+  puts "Error: #{path} is not a directory"
+  exit 1
+end
+
+puts RepoMan::ApacheConfigGenerator.new(path).to_httpd_conf
