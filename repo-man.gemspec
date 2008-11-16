@@ -1,3 +1,4 @@
+# Bump!
 Gem::Specification.new do |s|
   s.name = "repo-man"
   s.version = "0.1.0"
