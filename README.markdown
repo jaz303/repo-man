@@ -39,4 +39,4 @@ Usage
     
 This will spit out Apache configuration code suitable for pasting or dynamic inclusion into a `VirtualHost` block. The path you supply is assumed to correspond to the target virtual host's `DocumentRoot` and the repository locations will be normalised accordingly.
 
-If any of your repositories has specific access control requirements put them in a file called `access` in the corresponding root and `repo-man` will import this using the `AuthzSVNAccessFile` directive. The format of this file is explained at [http://svnbook.red-bean.com/en/1.1/ch06s04.html](), about 2/3 of the way down.
+If any of your repositories has specific access control requirements put them in a file called `svn_access` in the corresponding root, or any of its ancestor directories, and `repo-man` will import this using the `AuthzSVNAccessFile` directive. The format of this file is explained at [http://svnbook.red-bean.com/en/1.1/ch06s04.html](), about 2/3 of the way down.

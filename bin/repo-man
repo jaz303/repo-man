@@ -9,7 +9,7 @@ module RepoMan
     end
     
     def roots
-      RootDetector.new(@path).roots
+      @roots ||= RootDetector.new(@path).roots
     end
     
     def to_httpd_conf
@@ -20,8 +20,7 @@ module RepoMan
         out << "  DAV svn\n"
         out << "  SVNParentPath #{r}\n"
         
-        access_file = File.join(r, 'access')
-        if File.exists?(access_file)
+        if access_file = find_access_file(r)
           out << "  AuthzSVNAccessFile #{access_file}\n"
         end
           
@@ -39,6 +38,15 @@ module RepoMan
       def normalize_location(r)
         r.gsub(/^#{Regexp.quote(@path)}/, '') + '/'
       end
+      
+      def find_access_file(root)
+        while true
+          access_file = File.join(root, 'svn_access')
+          return access_file if File.exists?(access_file)
+          return nil if root.length <= @path.length 
+          root = File.dirname(root)
+        end
+      end
     
   end
 
@@ -50,10 +58,8 @@ module RepoMan
     end
     
     def roots
-      unless @roots
-        @roots = []
-        find_roots(@path)
-      end
+      @roots = []
+      find_roots(@path)
       @roots
     end
     
